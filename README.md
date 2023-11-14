@@ -2,7 +2,7 @@
 
 # Flight Collection Workflow
 ### November 2023
-### Author: George Manos
+### Author: [George Manos](mailto:george.manos01@outlook.com)
 
     
 

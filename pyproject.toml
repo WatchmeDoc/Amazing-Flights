@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "amazing-flights"
+version = "0.1.0"
+description = "A data collection workflow using Amadeus API"
+authors = ["George Manos <watchmedoctor@gmail.com>"]
+readme = "README.md"
+packages = [{include = "amazing_flights"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.31.0"
+psycopg = "^3.1.12"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.11.0"
+isort = "^5.12.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
