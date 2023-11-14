@@ -1,0 +1,13 @@
+{
+  "cities": [
+    "LHR",
+    "ZRH"
+  ],
+  "date": {
+    "year": "2024",
+    "day": "1"
+  },
+  "params": {
+    "adults": 1
+  }
+}
