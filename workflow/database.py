@@ -1,8 +1,9 @@
-import psycopg2
 import json
-from psycopg2 import Error
 from os import PathLike
 from typing import Union
+
+import psycopg2
+from psycopg2 import Error
 
 
 class DataBase:
@@ -20,11 +21,12 @@ class DataBase:
 
     db.close_db()
     """
+
     def __init__(self, config_path: Union[str, PathLike]):
         with open(config_path) as f:
             self._config = json.load(f)
 
-    def start_db(self, print_info: bool=True):
+    def start_db(self, print_info: bool = True):
         """
         Starts the database connection.
         :param print_info: (optional) boolean flag, whether to print detailed information about the connection.

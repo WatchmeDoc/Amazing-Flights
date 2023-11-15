@@ -4,5 +4,5 @@ install:
 	poetry install
 
 format:
-	@isort *.py
-	@black *.py
+	@isort .
+	@black .

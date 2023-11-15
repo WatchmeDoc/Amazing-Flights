@@ -6,16 +6,16 @@ from typing import List, Literal, Union
 
 from amadeus import Client, Response, ResponseError
 
-from workflow.utils import Date
 from workflow.database import DataBase
+from workflow.typing_utils import DateDict, QueryResponse
 
 
 class QueryHandler:
     def __init__(
-            self,
-            api_config_path: Union[str, PathLike],
-            db_config_path: Union[str, PathLike],
-            log_level: Literal["silent", "warn", "debug"] = "debug",
+        self,
+        api_config_path: Union[str, PathLike],
+        db_config_path: Union[str, PathLike],
+        log_level: Literal["silent", "warn", "debug"] = "debug",
     ):
         """
         Main Query Handler that uses Amadeus API to collect data on flights, based on the provided config file.
@@ -75,7 +75,7 @@ class QueryHandler:
             print("Successful Queries: {}/{}".format(successful_queries, all_queries))
 
     def get_flight_offers_for_month(
-            self, origin: str, destination: str, date: Date, params: dict
+        self, origin: str, destination: str, date: DateDict, params: dict
     ) -> tuple[List[Response], int]:
         """
         Gets flight offers for a given date.
