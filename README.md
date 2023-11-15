@@ -12,9 +12,15 @@
 <a href="#">
     <img src="https://img.shields.io/badge/Conda-4.12.0-44903d">
 </a>
-<br>
 <a href="#">
     <img src="https://img.shields.io/badge/Poetry-1.2.2-5119d4">
+</a>
+<br>
+<a href="#">
+    <img src="https://img.shields.io/badge/PostgreSQL-14.10-cc3b03">
+</a>
+<a href="#">
+    <img src="https://img.shields.io/badge/GNU Make-3.81-ab0505">
 </a>
 <br>
 <a href="https://github.com/amadeus4dev/amadeus-python"><strong>Explore Amadeus API »</strong></a>
