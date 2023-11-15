@@ -29,6 +29,11 @@
 ## Project Description
 Data collection workflow for flight data using Amadeus API.
 
+The aim of this project is to collect flight data from the Amadeus API and store them in a database.
+The workflow is simple:
+1. Create a query config file in `workflow/flight_queries/` folder (check the [schema](#query-config)).
+2. Run the `main.py` script with the path to the query config file as an argument.
+
 
 ## Getting Started
 The docker uses `conda` to create a virtual environment, `poetry`
