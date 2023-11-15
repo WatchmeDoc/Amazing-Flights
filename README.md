@@ -26,7 +26,7 @@ Data collection workflow for flight data using Amadeus API.
 
 ## Getting Started
 The docker uses `conda` to create a virtual environment, `poetry`
-for package management, as well as `make` and `Makefile`.
+for package management, `make` and `Makefile`, as well as PostgreSQL as a database.
 Make sure you have them installed on your machine.
 
 ### Installation
@@ -88,5 +88,12 @@ $ make format
 ```
 to reformat all python files into black style.
 
-
-
+## Note
+For `M1` Mac users, there is a problem with the installation of `psycopg2` package. To fix it, run:
+```shell
+$ brew install libpq --build-from-source
+$ brew install openssl
+$ export LDFLAGS="-L/opt/homebrew/opt/openssl@1.1/lib -L/opt/homebrew/opt/libpq/lib"
+$ export CPPFLAGS="-I/opt/homebrew/opt/openssl@1.1/include -I/opt/homebrew/opt/libpq/include"
+$ pip3 install psycopg2
+```
