@@ -1,0 +1,6 @@
+{
+  "user" : "gmanos",
+  "password" : "12345",
+  "host" : "localhost",
+  "database" : "postgres"
+}

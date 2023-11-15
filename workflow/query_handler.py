@@ -7,13 +7,15 @@ from typing import List, Literal, Union
 from amadeus import Client, Response, ResponseError
 
 from workflow.utils import Date
+from workflow.database import DataBase
 
 
 class QueryHandler:
     def __init__(
-        self,
-        config_path: Union[str, PathLike],
-        log_level: Literal["silent", "warn", "debug"] = "debug",
+            self,
+            api_config_path: Union[str, PathLike],
+            db_config_path: Union[str, PathLike],
+            log_level: Literal["silent", "warn", "debug"] = "debug",
     ):
         """
         Main Query Handler that uses Amadeus API to collect data on flights, based on the provided config file.
@@ -23,9 +25,19 @@ class QueryHandler:
             (Default: "silent")
         :paramtype log_level: str
         """
-        with open(config_path) as f:
+        with open(api_config_path) as f:
             config = json.load(f)
         self.amadeus_client = Client(**config, log_level=log_level)
+        self.db = DataBase(db_config_path)
+        if not self.db.start_db(print_info=True):
+            raise Exception("Could not connect to database.")
+
+    def __del__(self):
+        """
+        Closes the database connection when the QueryHandler object is deleted.
+        """
+        print("Closing database connection...")
+        self.db.close_db()
 
     def handle_query(self, query_path: Union[str, PathLike]):
         """
@@ -63,7 +75,7 @@ class QueryHandler:
             print("Successful Queries: {}/{}".format(successful_queries, all_queries))
 
     def get_flight_offers_for_month(
-        self, origin: str, destination: str, date: Date, params: dict
+            self, origin: str, destination: str, date: Date, params: dict
     ) -> tuple[List[Response], int]:
         """
         Gets flight offers for a given date.

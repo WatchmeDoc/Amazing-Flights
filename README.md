@@ -38,6 +38,7 @@ The script will create a conda environment named `FW` and install all required p
 Now you can run the `main.py` file!
 
 ### Configuration
+#### Query Config
 To execute the project properly, you need to first configure the `api_config.json` file in `workflow/configs/` folder.
 You need to generate a key and secret for the Amadeus API and provide them in that config (see [here](https://developers.amadeus.com/get-started/get-started-with-self-service-apis-335)).
 
@@ -79,16 +80,13 @@ The query config file follow this schema:
 }
 ```
 
+#### Database Config
+To configure the database, you need to change the `dbconfig.json` file in `workflow/configs/` folder,
+or provide a new one when executing the `main.py` script.
 
+Before that, make sure you have `PostgreSQL` installed and running on your machine, and also created the Database. 
+Useful tutorial [here](https://www.sqlshack.com/setting-up-a-postgresql-database-on-mac/).
 
-## Development
-The project uses `black` and `isort` code formatters for styling purposes. Prior to pushing, use
-```shell
-$ make format
-```
-to reformat all python files into black style.
-
-## Note
 For `M1` Mac users, there is a problem with the installation of `psycopg2` package. To fix it, run:
 ```shell
 $ brew install libpq --build-from-source
@@ -97,3 +95,10 @@ $ export LDFLAGS="-L/opt/homebrew/opt/openssl@1.1/lib -L/opt/homebrew/opt/libpq/
 $ export CPPFLAGS="-I/opt/homebrew/opt/openssl@1.1/include -I/opt/homebrew/opt/libpq/include"
 $ pip3 install psycopg2
 ```
+
+## Development
+The project uses `black` and `isort` code formatters for styling purposes. Prior to pushing, use
+```shell
+$ make format
+```
+to reformat all python files into black style.
