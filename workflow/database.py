@@ -1,14 +1,35 @@
 import psycopg2
 import json
 from psycopg2 import Error
+from os import PathLike
+from typing import Union
 
 
 class DataBase:
-    def __init__(self, config_path, ):
+    """
+    A simple class for connecting to a PostgreSQL database.
+
+    Usage:
+
+    db = DataBase(db_config_path)
+
+    if not db.start_db(print_info=True):
+        raise Exception("Could not connect to database.")
+
+    # Do stuff with the database
+
+    db.close_db()
+    """
+    def __init__(self, config_path: Union[str, PathLike]):
         with open(config_path) as f:
             self._config = json.load(f)
 
-    def start_db(self, print_info=True):
+    def start_db(self, print_info: bool=True):
+        """
+        Starts the database connection.
+        :param print_info: (optional) boolean flag, whether to print detailed information about the connection.
+        :return: True if the connection was successful, otherwise false.
+        """
         try:
             # Connect to an existing database
             self.connection = psycopg2.connect(**self._config)
@@ -30,6 +51,9 @@ class DataBase:
         return True
 
     def close_db(self):
+        """
+        Closes the database connection.
+        """
         if self.connection:
             self.cursor.close()
             self.connection.close()
