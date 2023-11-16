@@ -1,7 +1,4 @@
-from http.client import HTTPMessage, HTTPResponse
 from typing import List, TypedDict
-
-from amadeus.client.request import Request
 
 
 class DateDict(TypedDict):
