@@ -2,12 +2,12 @@ import calendar
 import datetime
 import json
 from os import PathLike
-from typing import List, Literal, Union
+from typing import List, Literal, Tuple, Union
 
-from amadeus import Client, Response, ResponseError
+from amadeus import Client, ResponseError
 
 from workflow.database import DataBase
-from workflow.typing_utils import DateDict, QueryResponse
+from workflow.typing_utils import DateDict, RequestDict, ResponseDataDict
 
 
 class QueryHandler:
@@ -15,7 +15,8 @@ class QueryHandler:
         self,
         api_config_path: Union[str, PathLike],
         db_config_path: Union[str, PathLike],
-        log_level: Literal["silent", "warn", "debug"] = "debug",
+        log_level: Literal["silent", "warn", "debug"] = "silent",
+        reset_db: bool = True,
     ):
         """
         Main Query Handler that uses Amadeus API to collect data on flights, based on the provided config file.
@@ -24,6 +25,7 @@ class QueryHandler:
             "debug", "warn", or "silent" mode
             (Default: "silent")
         :paramtype log_level: str
+        :param reset_db: (optional) boolean flag, whether to drop all tables and recreate them.
         """
         with open(api_config_path) as f:
             config = json.load(f)
@@ -31,6 +33,9 @@ class QueryHandler:
         self.db = DataBase(db_config_path)
         if not self.db.start_db(print_info=True):
             raise Exception("Could not connect to database.")
+        if reset_db:
+            self.db.drop_tables()
+            self.db.create_tables()
 
     def __del__(self):
         """
@@ -66,26 +71,27 @@ class QueryHandler:
                                 cities[i], cities[j]
                             )
                         )
-                        responses, total_queries = self.get_flight_offers_for_month(
-                            cities[i], cities[j], date, params
-                        )
+
+                        params["originLocationCode"] = cities[i]
+                        params["destinationLocationCode"] = cities[j]
+                        queries, total_queries = self.get_flight_offers(date, params)
                         # print([json.dumps(response.data, indent=4) for response in responses])
-                        successful_queries += len(responses)
+                        successful_queries += len(queries)
                         all_queries += total_queries
+                        self.db.store_queries(queries)
             print("Successful Queries: {}/{}".format(successful_queries, all_queries))
 
-    def get_flight_offers_for_month(
-        self, origin: str, destination: str, date: DateDict, params: dict
-    ) -> tuple[List[Response], int]:
+    def get_flight_offers(
+        self, date: DateDict, params: RequestDict
+    ) -> Tuple[List[Tuple[RequestDict, List[ResponseDataDict]]], int]:
         """
         Gets flight offers for a given date.
         If no month is provided, the API will return data for the entire year.
         If no day is provided, the API will return data for the entire month.
-        :param origin: Origin airport code
-        :param destination: Destination airport code
         :param date: Date dict containing year, month (optional), and day (optional)
-        :param params: Params dict containing the number of adults and other desired parameters for the API call.
-        :return:
+        :param params: Request dict containing the desired parameters for the API call.
+        :return: List of tuples containing the request and response for each successful API call,
+        and the total number of calls.
         """
         year = int(date["year"])
         if date.get("month") is None:
@@ -104,13 +110,10 @@ class QueryHandler:
                 print("Date: {}".format(params["departureDate"]))
                 total_queries += 1
                 try:
-                    results.append(
-                        self.amadeus_client.shopping.flight_offers_search.get(
-                            originLocationCode=origin,
-                            destinationLocationCode=destination,
-                            **params
-                        )
+                    response = self.amadeus_client.shopping.flight_offers_search.get(
+                        **params
                     )
+                    results.append((params, response.data))
 
                 except ResponseError as error:
                     # I think that the API can look for flights up to one year from now,

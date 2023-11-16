@@ -1,9 +1,12 @@
 import json
+from datetime import datetime
 from os import PathLike
-from typing import Union
+from typing import List, Tuple, Union
 
 import psycopg2
 from psycopg2 import Error
+
+from workflow.typing_utils import RequestDict, ResponseDataDict
 
 
 class DataBase:
@@ -63,20 +66,86 @@ class DataBase:
         else:
             print("No connection to close.")
 
-    def add_element(self, row):
-        pass
+    def create_tables(self):
+        with self.connection.cursor() as cur:
+            # Create the query_data table with a JSONB column for raw_data
+            cur.execute(
+                """
+                        CREATE TABLE IF NOT EXISTS query_data (
+                            id SERIAL PRIMARY KEY,
+                            request JSONB,
+                            response JSONB
+                        )
+                    """
+            )
 
-    def add_elements(self, rows):
-        pass
+            # Create the flights table with a foreign key reference to query_data
+            cur.execute(
+                """
+                        CREATE TABLE IF NOT EXISTS flights (
+                            flight_id SERIAL PRIMARY KEY,
+                            origin VARCHAR(255),
+                            destination VARCHAR(255),
+                            flight_departure TIMESTAMP,
+                            flight_arrival TIMESTAMP,
+                            duration INTERVAL,
+                            num_stops INTEGER,
+                            company VARCHAR(255),
+                            price NUMERIC,
+                            query_id INTEGER,
+                            FOREIGN KEY (query_id) REFERENCES query_data(id)
+                        )
+                    """
+            )
+            self.connection.commit()
+            print("Table 'flights' created successfully.")
 
-    def remove_element(self, row_id):
-        pass
+    def store_queries(self, queries: List[Tuple[RequestDict, List[ResponseDataDict]]]):
+        with self.connection.cursor() as cur:
+            for query in queries:
+                cur.execute(
+                    "INSERT INTO query_data (request, response) VALUES (%s, %s) RETURNING id",
+                    (json.dumps(query[0]), json.dumps(query[1])),
+                )
+                query_id = cur.fetchone()[0]
+                for response in query[1]:
+                    # i.e. "2024-11-02T09:55:00"
+                    format = "%Y-%m-%dT%H:%M:%S"
+                    arrival = datetime.strptime(
+                        response["itineraries"][0]["segments"][-1]["arrival"]["at"],
+                        format,
+                    )
+                    departure = datetime.strptime(
+                        response["itineraries"][0]["segments"][0]["departure"]["at"],
+                        format,
+                    )
+                    cur.execute(
+                        """
+                        INSERT INTO flights (origin, destination, flight_departure, flight_arrival, duration, num_stops, company, price, query_id) 
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        """,
+                        (
+                            response["itineraries"][0]["segments"][0]["departure"][
+                                "iataCode"
+                            ],
+                            response["itineraries"][0]["segments"][-1]["arrival"][
+                                "iataCode"
+                            ],
+                            departure,
+                            arrival,
+                            arrival - departure,
+                            len(response["itineraries"][0]["segments"]) - 1,
+                            response["itineraries"][0]["segments"][0]["carrierCode"],
+                            response["price"]["total"],
+                            query_id,
+                        ),
+                    )
+                print("Query {} stored successfully.".format(query_id))
+            self.connection.commit()
 
-    def remove_elements(self, row_ids):
-        pass
-
-    def get_element(self, row_id):
-        pass
-
-    def get_elements(self, row_ids):
-        pass
+    def drop_tables(self):
+        with self.connection.cursor() as cur:
+            cur.execute("DROP TABLE IF EXISTS flights")
+            cur.execute("DROP TABLE IF EXISTS query_data")
+            self.connection.commit()
+            print("Table 'flights' dropped successfully.")
