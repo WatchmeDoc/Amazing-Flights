@@ -78,7 +78,7 @@ class QueryHandler:
                         # print([json.dumps(response.data, indent=4) for response in responses])
                         successful_queries += len(queries)
                         all_queries += total_queries
-                        self.db.store_queries(queries)
+                        self.db.process_queries(queries)
             print("Successful Queries: {}/{}".format(successful_queries, all_queries))
 
     def get_flight_offers(

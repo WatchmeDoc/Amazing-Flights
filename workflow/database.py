@@ -67,6 +67,9 @@ class DataBase:
             print("No connection to close.")
 
     def create_tables(self):
+        """
+        Creates the tables in the database.
+        """
         with self.connection.cursor() as cur:
             # Create the query_data table with a JSONB column for raw_data
             cur.execute(
@@ -100,7 +103,13 @@ class DataBase:
             self.connection.commit()
             print("Table 'flights' created successfully.")
 
-    def store_queries(self, queries: List[Tuple[RequestDict, List[ResponseDataDict]]]):
+    def process_queries(
+        self, queries: List[Tuple[RequestDict, List[ResponseDataDict]]]
+    ):
+        """
+        Processes the queries and stores the data in the database.
+        :param queries: A list of (request, list(responses)) tuples to be stored in the database.
+        """
         with self.connection.cursor() as cur:
             for query in queries:
                 cur.execute(
@@ -144,6 +153,9 @@ class DataBase:
             self.connection.commit()
 
     def drop_tables(self):
+        """
+        Drops the tables in the database.
+        """
         with self.connection.cursor() as cur:
             cur.execute("DROP TABLE IF EXISTS flights")
             cur.execute("DROP TABLE IF EXISTS query_data")
