@@ -144,6 +144,7 @@ class DataBase:
                             arrival,
                             arrival - departure,
                             len(response["itineraries"][0]["segments"]) - 1,
+                            # carrier company name of only the first flight
                             response["itineraries"][0]["segments"][0]["carrierCode"],
                             response["price"]["total"],
                             query_id,

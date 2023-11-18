@@ -37,7 +37,7 @@ The workflow is simple:
 
 ## Getting Started
 The docker uses `conda` to create a virtual environment, `poetry`
-for package management, `make` and `Makefile`, as well as PostgreSQL as a database.
+for package management, `GNU make` (`Makefile`), as well as `PostgreSQL` as a database.
 Make sure you have them installed on your machine.
 
 ### Installation
